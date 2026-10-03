@@ -1,0 +1,46 @@
+<%- include('partials/admin-top', { title: 'Bookings' }) %>
+<div class="page-head">
+  <div>
+    <h1>Bookings</h1>
+    <p>Everything booked through your links. Times shown in <%= db.settings.timezone.replace(/_/g, ' ') %>.</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Upcoming</h2>
+  <% if (!upcoming.length) { %><p class="muted">Nothing upcoming.</p><% } else { %>
+  <div class="list">
+    <% upcoming.forEach(function (b) { %>
+    <div class="list-item">
+      <div class="grow">
+        <div class="title"><%= b.name %> <span class="muted">· <%= b.linkName %></span></div>
+        <div class="sub"><%= T.formatInstant(new Date(b.start), db.settings.timezone) %> – <%= T.formatTime(new Date(b.end), db.settings.timezone) %> · <a href="mailto:<%= b.email %>"><%= b.email %></a></div>
+        <% if (b.notes) { %><div class="sub" style="margin-top:4px; white-space:pre-wrap">“<%= b.notes %>”</div><% } %>
+      </div>
+      <div class="actions">
+        <% if (b.meetLink) { %><a class="btn secondary small" href="<%= b.meetLink %>" target="_blank" rel="noopener">Join Meet</a><% } %>
+        <% if (b.htmlLink) { %><a class="btn ghost small" href="<%= b.htmlLink %>" target="_blank" rel="noopener">Open in Google</a><% } %>
+        <form method="post" action="/admin/bookings/<%= b.id %>/cancel" onsubmit="return confirm('Cancel this booking? <%= b.name %> will get a cancellation from Google Calendar.')"><button class="btn danger small" type="submit">Cancel</button></form>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<div class="card">
+  <h2>Past &amp; cancelled</h2>
+  <% if (!past.length) { %><p class="muted">Nothing here yet.</p><% } else { %>
+  <div class="list">
+    <% past.forEach(function (b) { %>
+    <div class="list-item">
+      <div class="grow">
+        <div class="title"><%= b.name %> <span class="muted">· <%= b.linkName %></span> <% if (b.status === 'cancelled') { %><span class="pill clay">cancelled<%= b.cancelledBy === 'guest' ? ' by guest' : '' %></span><% } %></div>
+        <div class="sub"><%= T.formatInstant(new Date(b.start), db.settings.timezone) %> · <%= b.email %></div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+<%- include('partials/admin-bottom') %>

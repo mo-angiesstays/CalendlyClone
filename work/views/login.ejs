@@ -1,0 +1,20 @@
+<%- include('partials/head', { title: 'Sign in' }) %>
+<div class="center">
+  <div class="narrow">
+    <a class="brand" href="/"><span class="leaf"></span><span><%= appName %></span></a>
+    <div class="card">
+      <h1>Welcome back</h1>
+      <p class="muted">Enter the admin password from your <code>.env</code> file.</p>
+      <% if (failed) { %><div class="flash err">That password isn't right.</div><% } %>
+      <form method="post" action="/login">
+        <input type="hidden" name="next" value="<%= next %>">
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" autofocus autocomplete="current-password" required>
+        </div>
+        <button class="btn block" type="submit">Sign in</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,4 @@
+<%# Expects: hours (object), fieldName (string) %>
+<div class="hours-editor" data-hours-editor data-hours="<%= JSON.stringify(hours || {}) %>" data-field="<%= fieldName %>">
+  <input type="hidden" name="<%= fieldName %>" value="<%= JSON.stringify(hours || {}) %>">
+</div>

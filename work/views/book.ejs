@@ -1,0 +1,56 @@
+<%- include('partials/head', { title: link.name }) %>
+<div class="book-wrap">
+  <div class="book-card" data-book data-slug="<%= link.slug %>" data-duration="<%= link.duration %>" data-host-tz="<%= settings.timezone %>">
+    <aside class="book-side">
+      <% if (settings.hostName) { %><div class="host"><%= settings.hostName %></div><% } %>
+      <h1><%= link.name %></h1>
+      <div class="meta">
+        <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><%= link.duration %> minutes</span></div>
+        <% if (location) { %><div><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span><%= location %></span></div><% } %>
+        <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span data-tz-label>Times shown in your time zone</span></div>
+      </div>
+      <% if (link.description) { %><div class="desc"><%= link.description %></div><% } %>
+    </aside>
+    <section class="book-main">
+      <div data-step="pick">
+        <h2>Pick a time</h2>
+        <div class="picker">
+          <div>
+            <div class="cal-nav">
+              <button type="button" data-prev aria-label="Previous month">‹</button>
+              <div class="month" data-month-label></div>
+              <button type="button" data-next aria-label="Next month">›</button>
+            </div>
+            <div class="cal-grid" data-grid></div>
+            <div class="tz-row">
+              <span>Time zone</span>
+              <select data-tz></select>
+            </div>
+            <div class="loading hidden" data-loading style="margin-top:12px">Checking the calendar…</div>
+            <div class="form-error hidden" data-load-error style="margin-top:12px"></div>
+          </div>
+          <div class="slots">
+            <h3 data-day-label>Select a day</h3>
+            <div class="slot-list" data-slot-list></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-step="form" class="hidden">
+        <button type="button" class="btn ghost small" data-back style="margin-bottom:12px">← Back</button>
+        <h2>Your details</h2>
+        <div class="summary"><span data-summary></span><strong><%= link.duration %> min</strong></div>
+        <div class="form-error hidden" data-form-error></div>
+        <form data-form>
+          <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"><span class="hint">Your calendar invitation will be sent here.</span></div>
+          <div class="field"><label for="notes">Anything to share before we meet? <span class="muted">(optional)</span></label><textarea id="notes" name="notes"></textarea></div>
+          <button class="btn" type="submit" data-submit>Confirm booking</button>
+        </form>
+      </div>
+    </section>
+  </div>
+  <p class="footer-note">Powered by <%= appName %></p>
+</div>
+<script src="/static/book.js"></script>
+</body></html>

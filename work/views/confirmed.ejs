@@ -1,0 +1,25 @@
+<%- include('partials/head', { title: 'Booked' }) %>
+<div class="book-wrap">
+  <div class="book-card" style="grid-template-columns: 1fr; max-width: 620px; margin: 0 auto">
+    <section class="book-main">
+      <div class="confirm-box">
+        <div class="tick">✓</div>
+        <h1>You're booked<%= booking.status === 'cancelled' ? ' (cancelled)' : '' %></h1>
+        <p class="muted">A calendar invitation is on its way to <strong><%= booking.email %></strong>.</p>
+      </div>
+      <div class="divider"></div>
+      <div class="meta">
+        <div><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span><strong><%= link.name %></strong><%= settings.hostName ? ` with ${settings.hostName}` : '' %></span></div>
+        <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><%= T.formatInstant(new Date(booking.start), tz) %> – <%= T.formatTime(new Date(booking.end), tz) %><br><small class="muted"><%= tz.replace(/_/g, ' ') %></small></span></div>
+        <% if (booking.meetLink) { %><div><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg><span>Google Meet: <a href="<%= booking.meetLink %>"><%= booking.meetLink %></a></span></div>
+        <% } else if (location) { %><div><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span><%= location %></span></div><% } %>
+      </div>
+      <% if (booking.status === 'confirmed') { %>
+      <div class="divider"></div>
+      <p class="muted" style="margin:0">Need to change plans? <a href="<%= cancelUrl %>">Cancel this booking</a>.</p>
+      <% } %>
+    </section>
+  </div>
+  <p class="footer-note">Powered by <%= appName %></p>
+</div>
+</body></html>

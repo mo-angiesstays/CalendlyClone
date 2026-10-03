@@ -1,0 +1,42 @@
+<%- include('partials/admin-top', { title: 'Regular hours' }) %>
+<div class="page-head">
+  <div>
+    <h1>Regular hours</h1>
+    <p>Your default weekly availability. Booking links can use these hours, add to them, or ignore them entirely.</p>
+  </div>
+</div>
+<form method="post" action="/admin/hours">
+  <div class="card">
+    <h2>About you</h2>
+    <div class="row">
+      <div class="field">
+        <label for="hostName">Your name</label>
+        <input id="hostName" type="text" name="hostName" value="<%= db.settings.hostName %>" placeholder="e.g. Monish">
+        <span class="hint">Shown on your booking pages and in calendar event titles.</span>
+      </div>
+      <div class="field">
+        <label for="timezone">Your time zone</label>
+        <select id="timezone" name="timezone">
+          <% timeZones.forEach(function (tz) { %><option value="<%= tz %>" <%= tz === db.settings.timezone ? 'selected' : '' %>><%= tz.replace(/_/g, ' ') %></option><% }) %>
+        </select>
+        <span class="hint">All hours below are in this time zone. Guests see times in their own.</span>
+      </div>
+      <div class="field">
+        <label for="slotIncrement">Offer start times every</label>
+        <select id="slotIncrement" name="slotIncrement">
+          <% [10, 15, 20, 30, 45, 60].forEach(function (n) { %><option value="<%= n %>" <%= n === db.settings.slotIncrement ? 'selected' : '' %>><%= n %> minutes</option><% }) %>
+        </select>
+        <span class="hint">For example, every 30 minutes offers 9:00, 9:30, 10:00...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Weekly hours</h2>
+      <button class="btn" type="submit">Save</button>
+    </div>
+    <%- include('partials/hours-editor', { hours: db.settings.defaultHours, fieldName: 'hoursJson' }) %>
+  </div>
+</form>
+<%- include('partials/admin-bottom') %>

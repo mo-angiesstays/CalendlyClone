@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: 'Setup needed' }) %>
+<div class="center">
+  <div class="narrow">
+    <a class="brand" href="/"><span class="leaf"></span><span><%= appName %></span></a>
+    <div class="card">
+      <h1>Almost there</h1>
+      <p>A few settings are still missing from your <code>.env</code> file:</p>
+      <ul>
+        <% missing.forEach(function (m) { %><li><code><%= m %></code></li><% }) %>
+      </ul>
+      <p class="muted">Open the <code>README.md</code> in the project folder for the step-by-step setup guide. Once you've saved the <code>.env</code> file, restart the app and refresh this page.</p>
+    </div>
+  </div>
+</div>
+</body></html>

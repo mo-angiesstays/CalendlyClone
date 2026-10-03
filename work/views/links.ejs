@@ -1,0 +1,41 @@
+<%- include('partials/admin-top', { title: 'Booking links' }) %>
+<div class="page-head">
+  <div>
+    <h1>Booking links</h1>
+    <p>Each link is its own page with its own duration, location and availability rules.</p>
+  </div>
+  <a class="btn" href="/admin/links/new">+ New booking link</a>
+</div>
+
+<% if (!db.links.length) { %>
+<div class="card">
+  <h2>No links yet</h2>
+  <p>Create a link like <em>30-minute intro call</em> or <em>Property walkthrough</em>, then share its address. Guests pick a time and it lands straight in your calendar.</p>
+  <a class="btn" href="/admin/links/new">Create your first link</a>
+</div>
+<% } else { %>
+<div class="card">
+  <div class="list">
+    <% db.links.forEach(function (link) { %>
+    <div class="list-item">
+      <span class="dot" style="background: <%= link.color %>; width: 14px; height: 14px"></span>
+      <div class="grow">
+        <div class="title"><%= link.name %> <span class="pill <%= link.active ? '' : 'off' %>"><%= link.active ? 'live' : 'paused' %></span></div>
+        <div class="sub"><%= link.duration %> min · <%= LOCATION_LABELS[link.locationType] || 'Other' %> · <%= MODE_LABELS[link.mode] %><%= link.checkConflicts === false ? ' · calendar conflicts ignored' : '' %></div>
+        <div class="url-box" style="margin-top:8px; display:inline-flex">
+          <code><%= publicUrl %>/book/<%= link.slug %></code>
+          <button class="btn secondary small" type="button" data-copy="<%= publicUrl %>/book/<%= link.slug %>">Copy</button>
+          <a class="btn ghost small" href="/book/<%= link.slug %>" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary small" href="/admin/links/<%= link.id %>/edit">Edit</a>
+        <form method="post" action="/admin/links/<%= link.id %>/toggle"><button class="btn ghost small" type="submit"><%= link.active ? 'Pause' : 'Turn on' %></button></form>
+        <form method="post" action="/admin/links/<%= link.id %>/delete" onsubmit="return confirm('Delete this link? Existing bookings are not affected.')"><button class="btn danger small" type="submit">Delete</button></form>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+<% } %>
+<%- include('partials/admin-bottom') %>

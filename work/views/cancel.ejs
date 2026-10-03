@@ -1,0 +1,23 @@
+<%- include('partials/head', { title: 'Cancel booking' }) %>
+<div class="book-wrap">
+  <div class="book-card" style="grid-template-columns: 1fr; max-width: 560px; margin: 0 auto">
+    <section class="book-main">
+      <% if (done || booking.status === 'cancelled') { %>
+        <div class="confirm-box">
+          <div class="tick">✓</div>
+          <h1>Booking cancelled</h1>
+          <p class="muted">Your <strong><%= booking.linkName %></strong> on <%= T.formatInstant(new Date(booking.start), booking.timezone || settings.timezone) %> has been cancelled.<%= settings.hostName ? ` ${settings.hostName} has been notified.` : '' %></p>
+        </div>
+      <% } else { %>
+        <h1>Cancel this booking?</h1>
+        <p><strong><%= booking.linkName %></strong><br><%= T.formatInstant(new Date(booking.start), booking.timezone || settings.timezone) %> <small class="muted">(<%= (booking.timezone || settings.timezone).replace(/_/g, ' ') %>)</small></p>
+        <form method="post" action="/cancel/<%= booking.id %>/<%= token %>" style="display:flex; gap:10px">
+          <button class="btn" type="submit">Yes, cancel it</button>
+          <a class="btn secondary" href="javascript:history.back()">Keep it</a>
+        </form>
+      <% } %>
+    </section>
+  </div>
+  <p class="footer-note">Powered by <%= appName %></p>
+</div>
+</body></html>

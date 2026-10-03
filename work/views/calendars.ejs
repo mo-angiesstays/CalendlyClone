@@ -1,0 +1,51 @@
+<%- include('partials/admin-top', { title: 'Calendars' }) %>
+<div class="page-head">
+  <div>
+    <h1>Calendars</h1>
+    <p>Connect as many Google accounts as you like. Every checked calendar is consulted live before a time is offered.</p>
+  </div>
+  <a class="btn" href="/auth/google">+ Connect a Google account</a>
+</div>
+
+<% if (!db.accounts.length) { %>
+<div class="card">
+  <h2>No accounts yet</h2>
+  <p>Click <strong>Connect a Google account</strong>. You'll be asked to sign in with Google and allow <%= appName %> to see when you're busy and to add events. You can connect several accounts (personal, work, a shared family calendar...), one after another.</p>
+</div>
+<% } else { %>
+<form method="post" action="/admin/calendars">
+  <div class="card">
+    <div class="card-head">
+      <h2>Connected accounts</h2>
+      <button class="btn" type="submit">Save changes</button>
+    </div>
+    <% db.accounts.forEach(function (account) { %>
+    <div class="account">
+      <div class="head">
+        <div><strong><%= account.email %></strong> <span class="muted">· <%= (account.calendars || []).length %> calendar<%= (account.calendars || []).length === 1 ? '' : 's' %></span></div>
+        <div class="actions">
+          <button class="btn ghost small" type="submit" formaction="/admin/calendars/<%= account.id %>/refresh" formmethod="post">Refresh list</button>
+          <button class="btn danger small" type="submit" formaction="/admin/calendars/<%= account.id %>/disconnect" formmethod="post" onclick="return confirm('Disconnect <%= account.email %>? Existing bookings stay in Google Calendar.')">Disconnect</button>
+        </div>
+      </div>
+      <div class="cal-row cal-head"><div>Calendar</div><div>Counts as busy</div><div>Bookings go here</div></div>
+      <% (account.calendars || []).forEach(function (cal) { %>
+      <div class="cal-row">
+        <div class="name"><span class="dot" style="background: <%= cal.color %>"></span><span title="<%= cal.id %>"><%= cal.name %></span></div>
+        <label><input type="checkbox" name="busy" value="<%= account.id %>|<%= cal.id %>" <%= cal.checkBusy ? 'checked' : '' %>> Check for conflicts</label>
+        <label>
+          <% if (cal.canWrite) { %>
+            <input type="radio" name="destination" value="<%= account.id %>|<%= cal.id %>" <%= destination && destination.account.id === account.id && destination.calendar.id === cal.id ? 'checked' : '' %>> Add bookings here
+          <% } else { %>
+            <span class="muted">read-only</span>
+          <% } %>
+        </label>
+      </div>
+      <% }) %>
+    </div>
+    <% }) %>
+    <p class="muted" style="margin-top:14px">Tip: if a calendar is missing, create it in Google Calendar first, then click <em>Refresh list</em>. Bookings made through <%= appName %> are always treated as busy, even if their calendar is unchecked.</p>
+  </div>
+</form>
+<% } %>
+<%- include('partials/admin-bottom') %>

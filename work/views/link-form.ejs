@@ -1,0 +1,135 @@
+<%- include('partials/admin-top', { title: isNew ? 'New booking link' : 'Edit booking link' }) %>
+<div class="page-head">
+  <div>
+    <h1><%= isNew ? 'New booking link' : `Edit "${link.name}"` %></h1>
+    <p>Set what the meeting is and when it can be booked.</p>
+  </div>
+  <a class="btn ghost" href="/admin/links">← Back to links</a>
+</div>
+
+<form method="post" action="/admin/links/save" id="linkForm">
+  <input type="hidden" name="id" value="<%= link.id %>">
+
+  <div class="card">
+    <h2>The basics</h2>
+    <div class="row">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" type="text" name="name" value="<%= link.name %>" required placeholder="e.g. 30-minute intro call" data-slug-source>
+      </div>
+      <div class="field">
+        <label for="slug">Web address</label>
+        <div class="url-box"><code style="color: var(--muted)"><%= publicUrl %>/book/</code><input id="slug" type="text" name="slug" value="<%= link.slug %>" placeholder="intro-call" data-slug-target style="border:0; background:transparent; padding:4px 6px"></div>
+        <span class="hint">Letters, numbers and dashes. Leave blank to make one from the name.</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="description">Description <span class="muted">(optional)</span></label>
+      <textarea id="description" name="description" placeholder="What should guests know before booking?"><%= link.description %></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="duration">Duration</label>
+        <% const presets = [15, 20, 30, 45, 60, 90]; const isPreset = presets.includes(link.duration); %>
+        <select id="duration" name="duration" data-duration>
+          <% presets.forEach(function (n) { %><option value="<%= n %>" <%= link.duration === n ? 'selected' : '' %>><%= n %> minutes</option><% }) %>
+          <option value="custom" <%= !isPreset ? 'selected' : '' %>>Custom...</option>
+        </select>
+        <input type="number" name="durationCustom" min="5" max="600" value="<%= link.duration %>" class="<%= isPreset ? 'hidden' : '' %>" data-duration-custom style="margin-top:8px" placeholder="Minutes">
+      </div>
+      <div class="field">
+        <label for="locationType">Where</label>
+        <select id="locationType" name="locationType" data-location>
+          <option value="meet" <%= link.locationType === 'meet' ? 'selected' : '' %>>Google Meet (video link created automatically)</option>
+          <option value="phone" <%= link.locationType === 'phone' ? 'selected' : '' %>>Phone call</option>
+          <option value="in_person" <%= link.locationType === 'in_person' ? 'selected' : '' %>>In person</option>
+          <option value="custom" <%= link.locationType === 'custom' ? 'selected' : '' %>>Other</option>
+        </select>
+        <input type="text" name="locationDetail" value="<%= link.locationDetail %>" class="<%= link.locationType === 'meet' ? 'hidden' : '' %>" data-location-detail style="margin-top:8px" placeholder="Phone number, address, or instructions">
+      </div>
+      <div class="field">
+        <label>Colour</label>
+        <div class="swatches">
+          <% COLORS.forEach(function (c) { %><label style="background: <%= c %>" title="<%= c %>"><input type="radio" name="color" value="<%= c %>" <%= link.color === c ? 'checked' : '' %>></label><% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>When can this be booked?</h2>
+    <div class="mode-options">
+      <label class="mode-option">
+        <input type="radio" name="mode" value="default" <%= link.mode === 'default' ? 'checked' : '' %> data-mode>
+        <div><div class="t">My regular hours</div><div class="d">Uses the weekly hours from the <a href="/admin/hours">Regular hours</a> page.</div></div>
+      </label>
+      <label class="mode-option">
+        <input type="radio" name="mode" value="default_plus" <%= link.mode === 'default_plus' ? 'checked' : '' %> data-mode>
+        <div><div class="t">My regular hours, plus extra time just for this link</div><div class="d">Everything from your regular hours, and additionally the hours you set below. Handy for a link that may also be booked on evenings or weekends.</div></div>
+      </label>
+      <label class="mode-option">
+        <input type="radio" name="mode" value="custom" <%= link.mode === 'custom' ? 'checked' : '' %> data-mode>
+        <div><div class="t">Custom hours for this link only</div><div class="d">Ignore your regular hours and use only the hours you set below.</div></div>
+      </label>
+    </div>
+
+    <div data-link-hours class="<%= link.mode === 'default' ? 'hidden' : '' %>">
+      <div class="divider"></div>
+      <h3 data-hours-title><%= link.mode === 'custom' ? 'Hours for this link' : 'Extra hours for this link' %></h3>
+      <p class="muted">Times are in your time zone (<%= db.settings.timezone.replace(/_/g, ' ') %>).</p>
+      <%- include('partials/hours-editor', { hours: link.hours, fieldName: 'hoursJson' }) %>
+
+      <div class="divider"></div>
+      <h3>Specific dates <span class="muted">(optional)</span></h3>
+      <p class="muted" data-rules-help>
+        <% if (link.mode === 'custom') { %>On these dates, the hours you set here replace the weekly hours above. Add a date with no hours to block it off.<% } else { %>Extra hours on particular dates, added on top of everything above.<% } %>
+      </p>
+      <div data-date-rules data-rules="<%= JSON.stringify(link.dateRules || []) %>">
+        <input type="hidden" name="dateRulesJson" value="<%= JSON.stringify(link.dateRules || []) %>">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fine print</h2>
+    <div class="field">
+      <label class="check"><input type="checkbox" name="checkConflicts" <%= link.checkConflicts !== false ? 'checked' : '' %>> <span>Hide times that clash with my connected calendars <span class="hint">Recommended. Turn off only if this link should be bookable even when your calendar says you're busy.</span></span></label>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="bufferBefore">Gap before (minutes)</label>
+        <input id="bufferBefore" type="number" name="bufferBefore" min="0" max="240" step="5" value="<%= link.bufferBefore %>">
+        <span class="hint">Free time required before this meeting.</span>
+      </div>
+      <div class="field">
+        <label for="bufferAfter">Gap after (minutes)</label>
+        <input id="bufferAfter" type="number" name="bufferAfter" min="0" max="240" step="5" value="<%= link.bufferAfter %>">
+      </div>
+      <div class="field">
+        <label for="minNoticeHours">Minimum notice (hours)</label>
+        <input id="minNoticeHours" type="number" name="minNoticeHours" min="0" max="1440" value="<%= Math.round((link.minNoticeMinutes || 0) / 60) %>">
+        <span class="hint">Guests can't book sooner than this.</span>
+      </div>
+      <div class="field">
+        <label for="maxDaysAhead">Bookable up to (days ahead)</label>
+        <input id="maxDaysAhead" type="number" name="maxDaysAhead" min="1" max="365" value="<%= link.maxDaysAhead %>">
+      </div>
+      <div class="field">
+        <label for="slotIncrement">Start times every</label>
+        <select id="slotIncrement" name="slotIncrement">
+          <option value="0" <%= !link.slotIncrement ? 'selected' : '' %>>Use default (<%= db.settings.slotIncrement %> min)</option>
+          <% [10, 15, 20, 30, 45, 60].forEach(function (n) { %><option value="<%= n %>" <%= link.slotIncrement === n ? 'selected' : '' %>><%= n %> minutes</option><% }) %>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="check"><input type="checkbox" name="active" <%= link.active ? 'checked' : '' %>> <span>Link is live <span class="hint">Pause it to stop new bookings without deleting it.</span></span></label>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:10px; justify-content:flex-end">
+    <a class="btn secondary" href="/admin/links">Cancel</a>
+    <button class="btn" type="submit"><%= isNew ? 'Create link' : 'Save changes' %></button>
+  </div>
+</form>
+<%- include('partials/admin-bottom') %>
